@@ -1,21 +1,45 @@
-var utils = require('./server-utils');
+   var utils = require('./server-utils');
 var db = require('./db');
+var promise = require('bluebird');
 
 var idCounter = 1;
 var messages = [];
+var user = {};
+var msg = {};
 
 exports.getMessages = getMessages = function(req, res){
   utils.sendResponse(res, {results: messages});
 };
 
+// utils.collectData(req, function(err, data){
+//   var message = data;
+//   var getUserData = function(callback, message){
+//     user.user_name = message.username;
+//     callback(user);
+//   };
+//   var getMsgData = function(callback, message) {
+//     msg.context = message.text;
+//     callback(msg);
+//   };
+// });
+
+
 exports.postMessage = postMessage = function(req, res){
+  console.log('in post messge')
 
   utils.collectData(req, function(err, data){
     var message = data;
 
+    user.user_name = message.username;
+    msg.context = message.text;
     message.objectId = idCounter;
     idCounter += 1;
     messages.unshift(message);
+    db.checkUserTable(user.user_name, function(data){
+      db.addMessageToTable(data, msg.context, function(err, result) {
+        if (err) {console.log(err);} else {console.log(result);}
+      });
+    });
     utils.sendResponse(res, {message : message}, 201);
   });
 };

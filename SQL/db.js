@@ -1,4 +1,6 @@
 var mysql = require('mysql');
+var utils = require('./server-utils');
+var messages = require('./messages.js');
 /* If the node mysql module is not found on your system, you may
  * need to do an "sudo npm install -g mysql". */
 
@@ -7,9 +9,9 @@ var mysql = require('mysql');
  * "chat", which we created by running schema.sql.*/
 var dbConnection = mysql.createConnection({
   user: "root",
-  password: "",
   database: "chat"
 });
+
 
 dbConnection.connect();
 /* Now you can make queries to the Mysql database using the
@@ -17,13 +19,34 @@ dbConnection.connect();
  * See https://github.com/felixge/node-mysql for more details about
  * using this module.*/
 
+exports.checkUserTable = function(username, callback){
 
-dbConnection.query('INSERT INTO messages SET ?', {context: 'hey'},
-  function(err, result) {
-    if (err) throw err;
-    console.log(result.insertId,'hey?');
+  dbConnection.query('SELECT user_name from users WHERE user_name = '+username,
+  function(err, rows) {
+    if (err) {
+      dbConnection.query('INSERT INTO users SET user_name=?', username, function(err, result){
+        if (err) {console.log('db2', err);} else {callback(result.insertId);}
+      });
+    }
+    else {
+      console.log('rows',result.insertId);
+      callback(result.insertId);
+    }
   });
+};
 
-dbConnection.end();
+exports.addMessageToTable = function (userId, message, callback) {
+  dbConnection.query('INSERT INTO messages (user_id, context) VALUES (?, ?)', [userId, message], function(err, result) {
+    if (err) { console.log('amt', err)} else { callback(result);}
+  });
+};
+
+// dbConnection.query('INSERT INTO messages SET ?', {context: 'hey'},
+//   function(err, result) {
+//     if (err) throw err;
+//     // console.log(result.insertId,'');
+//   });
+
+// dbConnection.end();
 
 
