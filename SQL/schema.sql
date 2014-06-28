@@ -1,14 +1,27 @@
-CREATE DATABASE chat;
+create database chat;
 
 USE chat;
 
-CREATE TABLE messages (
-  /* Describe your table here.*/
+create table messages (
+  message_id int auto_increment primary key,
+  context varchar(140),
+  created_at timestamp,
+  user_id varchar(10),
+  room_id int
 );
 
 /* Create other tables and define schemas for them here! */
 
+create table users (
+  user_id int auto_increment primary key,
+  user_name varchar(20)
+);
 
+create table rooms (
+  room_id int auto_increment primary key,
+  room_name varchar(20),
+  message_id int
+);
 
 
 /*  Execute this file from the command line by typing:
