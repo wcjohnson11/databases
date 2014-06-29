@@ -11,17 +11,6 @@ exports.getMessages = getMessages = function(req, res){
   utils.sendResponse(res, {results: messages});
 };
 
-// utils.collectData(req, function(err, data){
-//   var message = data;
-//   var getUserData = function(callback, message){
-//     user.user_name = message.username;
-//     callback(user);
-//   };
-//   var getMsgData = function(callback, message) {
-//     msg.context = message.text;
-//     callback(msg);
-//   };
-// });
 
 
 exports.postMessage = postMessage = function(req, res){
@@ -37,7 +26,10 @@ exports.postMessage = postMessage = function(req, res){
     messages.unshift(message);
     db.checkUserTable(user.user_name, function(data){
       db.addMessageToTable(data, msg.context, function(err, result) {
-        if (err) {console.log(err);} else {console.log(result);}
+        if (err) {console.log(err);}
+        else {
+          console.log(result);
+        }
       });
     });
     utils.sendResponse(res, {message : message}, 201);

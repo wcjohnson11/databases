@@ -20,8 +20,8 @@ dbConnection.connect();
  * using this module.*/
 
 exports.checkUserTable = function(username, callback){
-
-  dbConnection.query('SELECT user_name from users WHERE user_name = '+username,
+//this first sql query isn't working, adding duplicates
+  dbConnection.query('SELECT user_name from users WHERE user_name = ?', username,
   function(err, rows) {
     if (err) {
       dbConnection.query('INSERT INTO users SET user_name=?', username, function(err, result){
@@ -29,16 +29,25 @@ exports.checkUserTable = function(username, callback){
       });
     }
     else {
-      console.log('rows',result.insertId);
-      callback(result.insertId);
+      console.log('rows HELLO',rows[0]);
+      callback(rows[0]);
     }
   });
 };
 
 exports.addMessageToTable = function (userId, message, callback) {
   dbConnection.query('INSERT INTO messages (user_id, context) VALUES (?, ?)', [userId, message], function(err, result) {
-    if (err) { console.log('amt', err)} else { callback(result);}
+    if (err) { console.log('amt', err)} else {
+      dbConnection.query('SELECT user_name, context from messages WHERE user_id= ?', userId,
+      function(err, rows) {
+        if(err) {console.log("HALP", err);} else {callback(rows[0]);}
+      });
+    }
   });
+};
+
+exports.getMessageFromTable = function() {
+
 };
 
 // dbConnection.query('INSERT INTO messages SET ?', {context: 'hey'},
